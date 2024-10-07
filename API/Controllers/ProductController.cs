@@ -1,14 +1,12 @@
+using API.RequestHelpers;
 using Core.Entities;
 using Core.Interfaces;
 using Core.Specifications;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ProductController(IGenericRepository<Product> repository) : ControllerBase
+    public class ProductController(IGenericRepository<Product> repository) : BaseController
     {
         // [HttpGet]
         // public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts()
@@ -17,22 +15,21 @@ namespace API.Controllers
         //     return Ok(products);
         // }
 
-        // [HttpGet("{id:int}")]
-        // public async Task<ActionResult<Product>> GetProduct(int id)
-        // {
-        //     var product = await repository.GetByIdAsync(id);
-        //     if (product == null) return NotFound();
-        //     return Ok(product);
-        // }
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Product>> GetProduct(int id)
+        {
+            var product = await repository.GetByIdAsync(id);
+            if (product == null) return NotFound();
+            return Ok(product);
+        }
 
         //https://localhost:5001/api/product?branch=Angular&type=Shoes&sort=priceAsc
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(string? branch, string? type, string? sort)
+        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] ProductSpecParams productSpecParams)
         {
-            var spec = new ProductSpecification(branch, type, sort);
-            var products = await repository.ListAsync(spec);
-
-            return Ok(products);
+            var spec = new ProductSpecification(productSpecParams);
+           
+            return await  CreatePageResult<Product>(repository, spec, productSpecParams.PageIndex, productSpecParams.PageSize);
         }
 
         [HttpGet("brands")]
