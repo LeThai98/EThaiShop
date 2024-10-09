@@ -1,2 +1,12 @@
 <app-header></app-header>
-<h1 class="text-3xl font-bold underline">Welcome to EThaiShop</h1>
+
+<div class="container mt-6">
+    <h2 class="text-3xl font-bold underline">
+        Welcome to {{ title }}!
+    </h2>
+    <ul>
+        @for (item of products; track item.id) {
+            <li>{{item.name}}</li>
+        }
+    </ul>
+</div>
