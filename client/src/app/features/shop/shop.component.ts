@@ -10,6 +10,7 @@ import { MatButton } from '@angular/material/button';
 import { MatMenu, MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatList, MatListOption, MatSelectionList, MatSelectionListChange } from '@angular/material/list';
 import { MatSelectChange } from '@angular/material/select';
+import { ShopParams } from '../../shared/models/shopParams';
 
 @Component({
   selector: 'app-shop',
@@ -29,9 +30,8 @@ export class ShopComponent implements OnInit {
   private shopService = inject(ShopService);
   private dialogService = inject(MatDialog);
   products: Product[] = []; 
-  selectedBrand: string[] = [];
-  selectedType: string[] = [];
-  selectedSort: string = 'name';
+  shopParams = new ShopParams();
+
   sortOptions = [
     {name: 'Alphabetical', value: 'name'},
     {name: 'Price: Low-High', value: 'priceAsc'},
@@ -51,13 +51,13 @@ export class ShopComponent implements OnInit {
   openFilterDialog() { 
     const dialogRef = this.dialogService.open(FiltersDialogComponent, {
       minWidth: '500px',
-      data: {selectedBrand: this.selectedBrand, selectedType: this.selectedType}
+      data: {selectedBrand: this.shopParams.brands, selectedType: this.shopParams.types}
     });
 
     dialogRef.afterClosed().subscribe({
       next: result => {
-        this.selectedBrand = result.selectedBrand;
-        this.selectedType = result.selectedType;
+        this.shopParams.brands = result.selectedBrand;
+        this.shopParams.types = result.selectedType;
 
         this.getProduct();
       }
@@ -68,13 +68,13 @@ export class ShopComponent implements OnInit {
     const selectedOption = event.options[0];
 
     if(selectedOption) {
-      this.selectedSort = selectedOption.value;
+      this.shopParams.sort = selectedOption.value;
       this.getProduct();
     }
   }
 
   getProduct() {
-    this.shopService.getProduct(this.selectedBrand, this.selectedType, this.selectedSort).subscribe({
+    this.shopService.getProduct(this.shopParams).subscribe({
       next: response => {
         this.products = response.data;
       },
