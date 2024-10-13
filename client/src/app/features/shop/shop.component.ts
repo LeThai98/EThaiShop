@@ -7,11 +7,21 @@ import { MatDialog } from '@angular/material/dialog';
 import { FiltersDialogComponent } from './filters-dialog/filters-dialog.component';
 import { MatIcon } from '@angular/material/icon';
 import { MatButton } from '@angular/material/button';
+import { MatMenu, MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { MatList, MatListOption, MatSelectionList, MatSelectionListChange } from '@angular/material/list';
+import { MatSelectChange } from '@angular/material/select';
 
 @Component({
   selector: 'app-shop',
   standalone: true,
-  imports: [MatCard,ProductItemComponent, MatIcon, MatButton],
+  imports: [MatCard,
+            ProductItemComponent, 
+            MatIcon, 
+            MatButton,
+            MatMenuModule,
+            MatSelectionList,
+            MatListOption,
+            MatMenuTrigger],
   templateUrl: './shop.component.html',
   styleUrl: './shop.component.scss'
 })
@@ -21,6 +31,12 @@ export class ShopComponent implements OnInit {
   products: Product[] = []; 
   selectedBrand: string[] = [];
   selectedType: string[] = [];
+  selectedSort: string = 'name';
+  sortOptions = [
+    {name: 'Alphabetical', value: 'name'},
+    {name: 'Price: Low-High', value: 'priceAsc'},
+    {name: 'Price: High-Low', value: 'priceDesc'},
+  ];
 
   ngOnInit() {
     this.iniializeShop();
@@ -29,16 +45,7 @@ export class ShopComponent implements OnInit {
   iniializeShop() {
     this.shopService.getBrands();
     this.shopService.getTypes();
-    this.shopService.getProduct().subscribe({
-      next: response => {
-        this.products = response.data;
-      },
-      error: error => {
-        console.error('There was an error!', error);
-      },
-      complete: () => {
-      }
-    });
+    this.getProduct();
   }
 
   openFilterDialog() { 
@@ -52,17 +59,32 @@ export class ShopComponent implements OnInit {
         this.selectedBrand = result.selectedBrand;
         this.selectedType = result.selectedType;
 
-        this.shopService.getProduct(this.selectedBrand, this.selectedType).subscribe({
-          next: response => {
-            this.products = response.data;
-          },
-          error: error => {
-            console.error('There was an error!', error);
-          },
-          complete: () => {
-          }
-        });
+        this.getProduct();
       }
     });
   }
+
+  onSortChange(event: MatSelectionListChange) {
+    const selectedOption = event.options[0];
+
+    if(selectedOption) {
+      this.selectedSort = selectedOption.value;
+      this.getProduct();
+    }
+  }
+
+  getProduct() {
+    this.shopService.getProduct(this.selectedBrand, this.selectedType, this.selectedSort).subscribe({
+      next: response => {
+        this.products = response.data;
+      },
+      error: error => {
+        console.error('There was an error!', error);
+      },
+      complete: () => {
+      }
+    });
+  }
+
 }
+
