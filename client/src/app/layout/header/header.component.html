@@ -7,11 +7,11 @@
                [routerLinkActiveOptions]="{exact: true}"           
                >Home</a>
             <a routerLink="/shop" routerLinkActive="active">Shop</a>
-            <a routerLink="/test-error" routerLinkActive="active">Contact</a>
+            <a routerLink="/test-error" routerLinkActive="active">Errors</a>
         </nav>
 
         <div class="flex gap-3">
-            <a matBadge="5" matBadgeSize="large" class = "custom-badge mt-2 mr-2">
+            <a routerLink="/cart" routerLinkActive="active" matBadge="{{cartService.itemCount()}}" matBadgeSize="large" class = "custom-badge mt-2 mr-2">
                 <mat-icon fontIcon="shopping_cart"></mat-icon>
             </a>
             <button mat-stroked-button class="button-header">Login</button>
