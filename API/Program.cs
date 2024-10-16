@@ -1,4 +1,5 @@
 using API.Middleware;
+using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Data.SeedData;
@@ -27,19 +28,19 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(config =>
 });
 
 builder.Services.AddScoped<ICartService, CartService>();
-
+builder.Services.AddAuthorization();
+builder.Services.AddIdentityApiEndpoints<AppUser>().AddEntityFrameworkStores<StoreContext>();
 var app = builder.Build();
 
 
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowCredentials()
     .WithOrigins("http://localhost:4200","https://localhost:4200"));
 
-app.UseAuthorization();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
 app.MapControllers();
-
+app.MapGroup("api").MapIdentityApi<AppUser>();
 try
 {  
     // crerate a scope to get the service provider and get the StoreContext service from it

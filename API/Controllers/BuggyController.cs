@@ -1,10 +1,13 @@
+using System.Security.Claims;
 using API.DTOs;
 using Core.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    [Authorize]
     public class BuggyController : BaseController
     {
         [HttpGet("unauthorized")]
@@ -35,6 +38,16 @@ namespace API.Controllers
         public IActionResult GetValidationError(CreateProductDto product)
         {
             return Ok();
+        }
+
+        [Authorize]
+        [HttpGet("secret")]
+        public IActionResult GetSecret()
+        {
+            var name = User.FindFirst(ClaimTypes.Name)?.Value;
+            var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            return Ok($"Hello {name}, your id is {id}");
         }
     }
 }
