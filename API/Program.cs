@@ -19,6 +19,8 @@ builder.Services.AddDbContext<StoreContext>(options =>
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddCors();
+
+// Redis configuration with ConnectionMultiplexer by inject ConnectionMultiplexer to DI Container: https://redis.io/learn/develop/dotnet 
 builder.Services.AddSingleton<IConnectionMultiplexer>(config => 
 {
     var connString = builder.Configuration.GetConnectionString("Redis") 
