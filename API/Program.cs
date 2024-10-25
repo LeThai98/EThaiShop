@@ -31,9 +31,29 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(config =>
 
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddAuthorization();
-builder.Services.AddIdentityApiEndpoints<AppUser>().AddEntityFrameworkStores<StoreContext>();
 
-// Log registered services
+/* Log registered services from specific extension method */
+
+// Capture initial state of services
+var initialServices = builder.Services.ToList();
+
+// Call AddIdentityApiEndpoints
+builder.Services.AddIdentityApiEndpoints<AppUser>();
+
+// Capture final state of services
+var finalServices = builder.Services.ToList();
+
+// Determine added services
+var addedServices = finalServices.Except(initialServices, new ServiceDescriptorComparer());
+
+foreach (var service in addedServices)
+{
+    Console.WriteLine($"Service: {service.ServiceType.FullName}, Lifetime: {service.Lifetime}, Implementation: {service.ImplementationType?.FullName}");
+}
+
+
+
+/* Log all registered services in DI Container*/
 foreach (var service in builder.Services)
 {
     Console.WriteLine($"Service: {service.ServiceType.FullName}, Lifetime: {service.Lifetime}, Implementation: {service.ImplementationType?.FullName} \n");
@@ -69,3 +89,20 @@ catch (Exception ex)
 }
 
 app.Run();
+
+
+// Custom comparer for ServiceDescriptor
+public class ServiceDescriptorComparer : IEqualityComparer<ServiceDescriptor>
+{
+    public bool Equals(ServiceDescriptor x, ServiceDescriptor y)
+    {
+        return x.ServiceType == y.ServiceType &&
+               x.Lifetime == y.Lifetime &&
+               x.ImplementationType == y.ImplementationType;
+    }
+
+    public int GetHashCode(ServiceDescriptor obj)
+    {
+        return HashCode.Combine(obj.ServiceType, obj.Lifetime, obj.ImplementationType);
+    }
+}
