@@ -32,6 +32,13 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(config =>
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<AppUser>().AddEntityFrameworkStores<StoreContext>();
+
+// Log registered services
+foreach (var service in builder.Services)
+{
+    Console.WriteLine($"Service: {service.ServiceType.FullName}, Lifetime: {service.Lifetime}, Implementation: {service.ImplementationType?.FullName} \n");
+}
+
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
